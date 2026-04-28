@@ -56,14 +56,6 @@ PUT /expenses/{id}
 DELETE /expenses/{id}
  Banco de Dados
 
-O banco Oracle foi configurado com:
-
-Tabela expense
-Sequence para geração de ID
-Trigger para auto incremento
-Observações técnicas:
-Oracle não possui AUTO_INCREMENT, sendo necessário uso de Sequence + Trigger
-O campo date foi adaptado para expense_date devido a restrições da linguagem SQL do Oracle
 
  Testes
 
