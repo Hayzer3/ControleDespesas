@@ -52,11 +52,11 @@ docker volume create oracle_data
 
 ```bash
 docker run -d \
-  --name oracle-rm566503 \
+  --name oracle-usuario \
   --network cp2 \
   -p 1521:1521 \
   -v oracle_data:/opt/oracle/oradata \
-  -e ORACLE_PASSWORD=fiap25 \
+  -e ORACLE_PASSWORD=senha \
   gvenzl/oracle-xe
 ```
 
@@ -76,8 +76,8 @@ docker run -d \
   --network cp2 \
   -p 8080:8080 \
   -e SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle-rm566503:1521/XEPDB1 \
-  -e SPRING_DATASOURCE_USERNAME=rm566503 \
-  -e SPRING_DATASOURCE_PASSWORD=fiap25 \
+  -e SPRING_DATASOURCE_USERNAME=usuario \
+  -e SPRING_DATASOURCE_PASSWORD=senha\
   api-rm566503
 ```
 
