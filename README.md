@@ -29,12 +29,15 @@ A aplicação está disponível publicamente no seguinte endereço:
 
 Para subir o projeto localmente:
 
-docker-compose up --build
+
  Endpoints disponíveis
+ 
  Listar todas as despesas
 GET /expenses
+
  Criar nova despesa
 POST /expenses
+
 Exemplo de requisição:
 {
   "amount": 150.75,
@@ -43,10 +46,13 @@ Exemplo de requisição:
   "description": "Almoço"
 }
  Buscar por ID
+ 
 GET /expenses/{id}
  Atualizar despesa
+ 
 PUT /expenses/{id}
  Remover despesa
+ 
 DELETE /expenses/{id}
  Banco de Dados
 
