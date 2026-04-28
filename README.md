@@ -1,76 +1,144 @@
- Expenses API - Deploy em Nuvem (Azure)
+# How To: Implantação do Ambiente DimDim em Docker
 
-Este projeto tem como objetivo demonstrar o deploy de uma aplicação Java com Spring Boot integrada a um banco de dados Oracle, utilizando containers Docker e execução em ambiente de nuvem (Microsoft Azure).
+Este guia descreve o passo a passo para a migração e execução do ambiente de desenvolvimento da aplicação DimDim utilizando containers Docker e banco de dados Oracle.
 
- Objetivo
+---
 
-Implementar e disponibilizar uma API REST em ambiente cloud, garantindo:
+## 1. Objetivo
 
-Execução em containers Docker
-Separação de serviços (aplicação e banco)
-Acesso público via IP
-Persistência de dados em banco Oracle
- Arquitetura da Solução
+Demonstrar a containerização da aplicação e sua execução em ambiente isolado, garantindo:
 
-A aplicação foi estruturada em dois containers:
+* Comunicação entre serviços via rede Docker
+* Persistência de dados
+* Execução independente de ambiente local
 
-Aplicação (Spring Boot) → responsável pelas regras de negócio e endpoints REST
-Banco de Dados (Oracle) → responsável pela persistência dos dados
+---
 
-Ambos os containers foram orquestrados e executados em uma máquina virtual na Azure.
+## 2. Pré-requisitos
 
- Deploy na Azure
+Antes de iniciar, certifique-se de possuir:
 
-A aplicação está disponível publicamente no seguinte endereço:
+* Docker instalado e configurado
+* Imagem `gvenzl/oracle-xe` disponível no Docker Hub
+* Arquivo `.jar` da aplicação gerado na pasta `target/`
 
- http://20.151.202.7:8080/expenses
+---
 
- Execução com Docker
+## 3. Configuração da Infraestrutura Docker
 
-Para subir o projeto localmente:
+### 3.1 Criar a rede Docker
 
+Para permitir a comunicação entre os containers:
 
- Endpoints disponíveis
- 
- Listar todas as despesas
-GET /expenses
+```bash
+docker network create cp2
+```
 
- Criar nova despesa
-POST /expenses
+---
 
-Exemplo de requisição:
-{
-  "amount": 150.75,
-  "category": "Alimentação",
-  "date": "2026-04-27",
-  "description": "Almoço"
-}
- Buscar por ID
- 
-GET /expenses/{id}
- Atualizar despesa
- 
-PUT /expenses/{id}
- Remover despesa
- 
-DELETE /expenses/{id}
- Banco de Dados
+### 3.2 Criar volume para persistência
 
+Garante que os dados do banco não sejam perdidos:
 
- Testes
+```bash
+docker volume create oracle_data
+```
 
-Os testes da API podem ser realizados via:
+---
 
-Postman
-Insomnia
-Navegador (requisições GET)
+## 4. Execução dos Containers
 
- Resultados
-Aplicação executando com sucesso em ambiente cloud
-Containers funcionando de forma isolada
-Comunicação entre aplicação e banco validada
-API acessível publicamente via IP
+### 4.1 Subir o banco de dados Oracle
 
-Conclusão
+```bash
+docker run -d \
+  --name oracle-rm566503 \
+  --network cp2 \
+  -p 1521:1521 \
+  -v oracle_data:/opt/oracle/oradata \
+  -e ORACLE_PASSWORD=fiap25 \
+  gvenzl/oracle-xe
+```
 
-O projeto atingiu o objetivo proposto, demonstrando a viabilidade de deploy de aplicações Java containerizadas em ambiente de nuvem, com integração a banco de dados Oracle e exposição de endpoints REST para consumo externo.
+Observação: o nome do container inclui o RM conforme regra do projeto.
+
+---
+
+### 4.2 Buildar e subir a API
+
+```bash
+# Build da imagem
+docker build -t api-rm566503 .
+
+# Execução do container
+docker run -d \
+  --name api-rm566503 \
+  --network cp2 \
+  -p 8080:8080 \
+  -e SPRING_DATASOURCE_URL=jdbc:oracle:thin:@oracle-rm566503:1521/XEPDB1 \
+  -e SPRING_DATASOURCE_USERNAME=rm566503 \
+  -e SPRING_DATASOURCE_PASSWORD=fiap25 \
+  api-rm566503
+```
+
+---
+
+## 5. Acesso à Aplicação
+
+Após subir os containers, a API estará disponível em:
+
+```
+http://localhost:8080/expenses
+```
+
+Ou, em ambiente de nuvem (Azure):
+
+```
+http://20.151.202.7:8080/expenses
+```
+
+---
+
+## 6. Testes de Aderência (CRUD)
+
+Para validar o funcionamento da aplicação, execute comandos diretamente no banco:
+
+```sql
+-- INSERT
+INSERT INTO expense (amount, category, expense_date, description)
+VALUES (150.50, 'Docker', TO_DATE('2026-04-28', 'YYYY-MM-DD'), 'Teste Checkpoint');
+
+-- UPDATE
+UPDATE expense
+SET amount = 200.00
+WHERE id = 1;
+
+-- DELETE
+DELETE FROM expense
+WHERE id = 1;
+```
+
+---
+
+## 7. Considerações Técnicas
+
+* O banco Oracle foi executado em container separado
+* A aplicação se conecta ao banco via nome do container (`oracle-rm566503`)
+* Foi utilizado volume Docker para persistência dos dados
+* A comunicação entre serviços ocorre via rede Docker (`cp2`)
+
+---
+
+## 8. Resultado
+
+* Ambiente containerizado com sucesso
+* Integração entre aplicação e banco validada
+* API funcional localmente e em nuvem (Azure)
+
+---
+
+## 9. Autores
+
+Lucas Nunes Soares
+Camily Vitória Pereira Maciel
+Eduarda Weiss
