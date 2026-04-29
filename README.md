@@ -101,6 +101,7 @@ Integração entre aplicação e banco validada.
 API funcional localmente e em nuvem (Azure).
 
 9. Autores
+
 Lucas Nunes Soares
 
 Camily Vitória Pereira Maciel
