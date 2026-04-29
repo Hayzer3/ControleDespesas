@@ -1,4 +1,6 @@
-How To: Implantação do Ambiente DimDim em Docker
+How To
+
+Implantação do Ambiente DimDim em Docker
 Este guia descreve o passo a passo para a migração e execução do ambiente de desenvolvimento da aplicação DimDim utilizando containers Docker nativos. A arquitetura foi desenhada para separar as responsabilidades entre um container de banco de dados Oracle e um container para a API Java.
 
 1. Objetivo
